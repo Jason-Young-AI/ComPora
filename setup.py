@@ -8,7 +8,7 @@ import setuptools
 PACKAGE_INFO = {}
 
 PACKAGE_INFO['Name'] = 'ComPora'
-PACKAGE_INFO['Version'] = '0.1.0'
+PACKAGE_INFO['Version'] = '0.1.1'
 PACKAGE_INFO['Author'] = 'Jason-Young-AI'
 PACKAGE_INFO['EMail'] = 'AI.Jason.Young@gmail.com'
 PACKAGE_INFO['Source_URL'] = 'https://github.com/Jason-Young-AI/ComPora.git'
@@ -116,7 +116,7 @@ def setup_my_package():
         },
         entry_points={
             'console_scripts': [
-                'ycp-parallel = compora_cli.parallel:main',
+                'compora-parallel = compora_cli.parallel:main',
             ],
         },
     )
