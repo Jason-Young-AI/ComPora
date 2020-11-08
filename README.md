@@ -47,7 +47,12 @@ It also provides several additional optional functions, such as eliminate abnorm
 
 If you have a raw Chinese-English parallel corpus (chinese: `corpus-zh`; english: `corpus-en`), you can compile the corpus like this:
 ```bash
-compora-parallel --number-worker 10 --work-amount 100000 --eliminate-abnormal -r 5.0 -s zh -t en corpus-zh corpus-en corpus-zh-compiled corpus-en-compiled
+compora-parallel \
+    --number-worker 10 --work-amount 100000 \
+    --eliminate-abnormal -r 5.0 \
+    -s zh -t en \
+    corpus-zh corpus-en \
+    corpus-zh-compiled corpus-en-compiled
 ```
 
 Just run `compora-parallel --help` for more help.
