@@ -45,6 +45,8 @@ It directly integrates several common preprocessing functions which is implement
 
 It also provides several additional optional functions, such as eliminate abnormal sentence pairs that the ratio of the longest sentence length to the shortest sentence length is too large in the source sentence and the target sentence.
 
+For languages where there is no explicit segmentation between words. We realize the function of word segmentation. We use [`pkuseg`](https://github.com/lancopku/pkuseg-python) for Chinese Segmentation
+
 If you have a raw Chinese-English parallel corpus (chinese: `corpus-zh`; english: `corpus-en`), you can compile the corpus like this:
 ```bash
 compora-parallel \
