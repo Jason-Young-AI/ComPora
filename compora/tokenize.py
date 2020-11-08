@@ -1,17 +1,12 @@
 import re
-from yoolkit.xmlscape import encode, decode
 from yoolkit.text import unicode_category
 
 from compora.nb_prefix import nb_prefix
 
 
-def tokenize(sentence, language, split_aggressive_hyphen=True):
+def tokenize(sentence, language):
     # seperate out all special characters that are not in 'L' and 'Nd' categories
-    sentence = encode(sentence)
     sentence = re.sub(r'([^\w\d\s\'\-,.])', ' \g<1> ', sentence)
-
-    if split_aggressive_hyphen:
-        sentence = re.sub(r'([\w\d])-(?=[\w\d])', '\g<1> @-@ ', sentence) 
 
     # Do not split multi-dots
     sentence = re.sub(r'\.(\.+)', ' MULTIDOT\g<1>', sentence)
@@ -69,6 +64,10 @@ def tokenize(sentence, language, split_aggressive_hyphen=True):
     while re.search(r'MULTIMULTIDOT', sentence):
         sentence = re.sub(r'MULTIMULTIDOT', 'MULTIDOT.', sentence)
     sentence = re.sub(r'MULTIDOT', '.', sentence)
-    sentence = decode(sentence)
 
+    return sentence
+
+
+def split_aggressive_hyphen(sentence):
+    sentence = re.sub(r'([\w\d])-(?=[\w\d])', '\g<1> @-@ ', sentence) 
     return sentence
