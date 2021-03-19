@@ -193,8 +193,7 @@ def compile_sentence(
                 print('.', end='')
                 sys.stdout.flush()
             yield (s_line, t_line)
-
-        print(f'   ...Process-{os.getpid()} Finished...   \n', end='')
+        print(f'\n   ...Process-{os.getpid()} Finished...   \n', end='')
 
     dump_datas(inter_compiled_path, compiled_sentence())
 
