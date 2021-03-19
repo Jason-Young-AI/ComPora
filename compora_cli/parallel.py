@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import argparse
 import functools
 
@@ -167,8 +168,11 @@ def compile_sentence(
             s_line = special_process(s_line, source_language)
             t_line = special_process(t_line, target_language)
 
-            s_line = encode(s_line)
-            t_line = encode(t_line)
+            if no_escape:
+                pass
+            else:
+                s_line = encode(s_line)
+                t_line = encode(t_line)
 
             s_line = tokenize(s_line, source_language)
             t_line = tokenize(t_line, target_language)
@@ -179,12 +183,18 @@ def compile_sentence(
             s_line = split_aggressive_hyphen(s_line)
             t_line = split_aggressive_hyphen(t_line)
 
-            s_line = decode(s_line)
-            t_line = decode(t_line)
+            if no_escape:
+                pass
+            else:
+                s_line = decode(s_line)
+                t_line = decode(t_line)
 
             if (index + 1) % 10000 == 0:
                 print('.', end='')
+                sys.stdout.flush()
             yield (s_line, t_line)
+
+        print(f'   ...Process-{os.getpid()} Finished...   \n', end='')
 
     dump_datas(inter_compiled_path, compiled_sentence())
 
