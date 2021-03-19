@@ -58,6 +58,11 @@ def get_arguments():
         action='store_true',
         help=('Do not escape XML chars in the source and target file.\n'),
     )
+    argument_parser.add_argument(
+        '--split-agghyp',
+        action='store_true',
+        help=('Split aggressive hyphen in the source and target file.\n'),
+    )
 
     argument_parser.add_argument(
         '--eliminate-abnormal',
@@ -146,7 +151,7 @@ def merge(inter_paths, logger):
 
 def compile_sentence(
         paired_lines, source_language, target_language,
-        source_segmenter, target_segmenter, lowercase, no_escape,
+        source_segmenter, target_segmenter, lowercase, no_escape, split_agghyp,
     ):
     inter_compiled_path = mk_temp('compora-inter-compiled_', temp_type='file')
 
@@ -180,8 +185,9 @@ def compile_sentence(
             s_line = source_segmenter.cut(s_line)
             t_line = target_segmenter.cut(t_line)
 
-            s_line = split_aggressive_hyphen(s_line)
-            t_line = split_aggressive_hyphen(t_line)
+            if split_agghyp:
+                s_line = split_aggressive_hyphen(s_line)
+                t_line = split_aggressive_hyphen(t_line)
 
             if no_escape:
                 pass
@@ -248,6 +254,7 @@ def main():
     number_worker = arguments.number_worker
     lowercase = arguments.lowercase
     no_escape = arguments.no_escape
+    split_agghyp = arguments.split_agghyp
 
     logger.info(f'2. Removing control chars ...')
 
@@ -276,6 +283,7 @@ def main():
         target_segmenter=t_segmenter,
         lowercase=lowercase,
         no_escape=no_escape,
+        split_agghyp=split_agghyp,
     )
     inter_compiled_paths = multi_process(partial_compile_sentence, temp_partitions, number_worker)
 
