@@ -73,10 +73,37 @@ def get_arguments():
         '-r',
         '--length-ratio',
         type=float,
+        metavar='FLOAT',
+        default=9.0,
+        help=('Eliminate sentence pair that the length ratio max(len(source), len(target))/min(len(source), len(target)) larger than --length-ratio.\n'
+              'DEFAULT=9.0'),
+    )
+    argument_parser.add_argument(
+        '-ltc',
+        '--min-token-count',
+        type=int,
         metavar='N',
-        default=5.0,
-        help=('Eliminate sentence pair that the length ratio (len(source)/len(target) or len(target)/len(source)) larger than --length-ratio.\n'
-              'DEFAULT=5'),
+        default=1,
+        help=('Eliminate sentence pair that the number of tokens of source or target sentence less than --min-token-count.\n'
+              'DEFAULT=1'),
+    )
+    argument_parser.add_argument(
+        '-rtc',
+        '--max-token-count',
+        type=int,
+        metavar='N',
+        default=100,
+        help=('Eliminate sentence pair that the number of tokens of source or target sentence larger than --max-token-count.\n'
+              'DEFAULT=100'),
+    )
+    argument_parser.add_argument(
+        '-ncc',
+        '--max-nonblank-char-count',
+        type=int,
+        metavar='N',
+        default=1000,
+        help=('Eliminate sentence pair that the number of non-blank chars of source or target sentence larger than --max-nonblank-char-count.\n'
+              'DEFAULT=1000'),
     )
 
     argument_parser.add_argument(
@@ -206,8 +233,11 @@ def compile_sentence(
     return inter_compiled_path
 
 
-def eliminate_abnormal_sentence_pairs(sentence_pairs, length_ratio):
+def eliminate_abnormal_sentence_pairs(sentence_pairs, length_ratio, min_token_count, max_token_count, max_nonblank_char_count):
+    pattern = re.compile("[^\s\|]")
     for s_line, t_line in sentence_pairs:
+        max_char_length = max(len(pattern.findall(s_line)), len(pattern.findall(t_line)))
+
         s_list = s_line.split()
         t_list = t_line.split()
 
@@ -215,7 +245,11 @@ def eliminate_abnormal_sentence_pairs(sentence_pairs, length_ratio):
         t_len = len(t_list)
         max_len = max(s_len, t_len)
         min_len = min(s_len, t_len)
+        if min_len < min_token_count or max_token_count < max_len:
+            continue
         if max_len/min_len > length_ratio:
+            continue
+        if max_char_length > max_nonblank_char_count:
             continue
         yield (s_line, t_line)
 
@@ -231,7 +265,9 @@ def main():
     s_lang = arguments.source_language
     t_lang = arguments.target_language
 
-    assert arguments.length_ratio > 0, f'--length-ratio <= 1! You do not want to eliminate all the sentences, do you?'
+    assert arguments.length_ratio >= 1, f'--length-ratio < 1! You do not want to eliminate all the sentences, do you?'
+    assert arguments.min_token_count <= arguments.max_token_count, f'--min-token-count > --max-token-count!'
+    assert arguments.max_nonblank_char_count > 0, f'--max-nonblank-char-count <= 0!'
 
     s_segmenter = Segmenter(s_lang)
     t_segmenter = Segmenter(t_lang)
@@ -300,6 +336,9 @@ def main():
                 compiled_sentence = eliminate_abnormal_sentence_pairs(
                     compiled_sentence, 
                     length_ratio=arguments.length_ratio,
+                    min_token_count=arguments.min_token_count,
+                    max_token_count=arguments.max_token_count,
+                    max_nonblank_char_count=arguments.max_nonblank_char_count,
                 )
             for src_line, tgt_line in compiled_sentence:
                 sof.writelines(src_line + '\n')
