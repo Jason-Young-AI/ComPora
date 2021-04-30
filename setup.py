@@ -41,6 +41,7 @@ except FileNotFoundError:
 REQUIRED = [
         'YoungToolkit',
         'pkuseg',
+        'regex',
         ]
 
 # Optional
