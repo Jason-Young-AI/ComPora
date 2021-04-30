@@ -1,8 +1,20 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) Jason Young (杨郑鑫).
+#
+# E-Mail: <AI.Jason.Young@outlook.com>
+# 2021-04-29 16:33
+#
+# This source code is licensed under the WTFPL license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import os
-import re
 import sys
 import argparse
 import functools
+import regex as re
 
 from yoolkit.cio import mk_temp, rm_temp, dump_datas, load_datas, load_plain
 from yoolkit.text import unicode_category, detect_file_encoding, normalize
@@ -48,6 +60,11 @@ def get_arguments():
         help=('The path of compiled target file to be wrote.\n'),
     )
 
+    argument_parser.add_argument(
+        '--normalize-character',
+        action='store_true',
+        help=('Normalize all chars in the source and target file.\n'),
+    )
     argument_parser.add_argument(
         '--lowercase',
         action='store_true',
@@ -178,16 +195,21 @@ def merge(inter_paths, logger):
 
 def compile_sentence(
         paired_lines, source_language, target_language,
-        source_segmenter, target_segmenter, lowercase, no_escape, split_agghyp,
+        source_segmenter, target_segmenter, normalize_character, lowercase, no_escape, split_agghyp,
     ):
     inter_compiled_path = mk_temp('compora-inter-compiled_', temp_type='file')
 
     def compiled_sentence():
         s_lines, t_lines = paired_lines
         for index, (s_line, t_line) in enumerate(zip(s_lines, t_lines)):
-            # There is no '\n' after text normalization
-            s_line = normalize(s_line)
-            t_line = normalize(t_line)
+            s_line = s_line.strip()
+            t_line = t_line.strip()
+
+            if normalize_character:
+                # There is no '\n' after text normalization
+                s_line = normalize(s_line)
+                t_line = normalize(t_line)
+
             if lowercase:
                 s_line = s_line.lower()
                 t_line = t_line.lower()
@@ -288,6 +310,7 @@ def main():
 
     work_amount = arguments.work_amount
     number_worker = arguments.number_worker
+    normalize_character = arguments.normalize_character
     lowercase = arguments.lowercase
     no_escape = arguments.no_escape
     split_agghyp = arguments.split_agghyp
@@ -317,6 +340,7 @@ def main():
         target_language=t_lang,
         source_segmenter=s_segmenter,
         target_segmenter=t_segmenter,
+        normalize_character=normalize_character,
         lowercase=lowercase,
         no_escape=no_escape,
         split_agghyp=split_agghyp,
